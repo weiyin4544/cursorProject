@@ -127,11 +127,38 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'terminal',
         name: 'Terminal',
-        component: () => import('../views/terminal/TerminalList.vue'),
+        component: () => import('../layouts/RouterView.vue'),
+        redirect: '/terminal/list',
         meta: {
           title: '终端管理',
           icon: 'Monitor'
-        }
+        },
+        children: [
+          {
+            path: 'list',
+            name: 'TerminalList',
+            component: () => import('../views/terminal/TerminalList.vue'),
+            meta: { title: '终端列表', icon: 'List' }
+          },
+          {
+            path: 'add',
+            name: 'TerminalAdd',
+            component: () => import('../views/terminal/TerminalEdit.vue'),
+            meta: { title: '新增终端', icon: 'Plus', hidden: true }
+          },
+          {
+            path: 'edit/:id',
+            name: 'TerminalEdit',
+            component: () => import('../views/terminal/TerminalEdit.vue'),
+            meta: { title: '编辑终端', icon: 'Edit', hidden: true }
+          },
+          {
+            path: 'detail/:id',
+            name: 'TerminalDetail',
+            component: () => import('../views/terminal/TerminalDetail.vue'),
+            meta: { title: '终端详情', icon: 'InfoFilled', hidden: true }
+          }
+        ]
       },
       {
         path: 'group',
@@ -154,11 +181,38 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'subsystem',
         name: 'Subsystem',
-        component: () => import('../views/subsystem/SubsystemList.vue'),
+        component: () => import('../layouts/RouterView.vue'),
+        redirect: '/subsystem/list',
         meta: {
           title: '子系统管理',
           icon: 'Connection'
-        }
+        },
+        children: [
+          {
+            path: 'list',
+            name: 'SubsystemList',
+            component: () => import('../views/subsystem/SubsystemList.vue'),
+            meta: { title: '子系统列表', icon: 'List' }
+          },
+          {
+            path: 'add',
+            name: 'SubsystemAdd',
+            component: () => import('../views/subsystem/SubsystemEdit.vue'),
+            meta: { title: '新增子系统', icon: 'Plus', hidden: true }
+          },
+          {
+            path: 'edit/:id',
+            name: 'SubsystemEdit',
+            component: () => import('../views/subsystem/SubsystemEdit.vue'),
+            meta: { title: '编辑子系统', icon: 'Edit', hidden: true }
+          },
+          {
+            path: 'detail/:id',
+            name: 'SubsystemDetail',
+            component: () => import('../views/subsystem/SubsystemDetail.vue'),
+            meta: { title: '子系统详情', icon: 'InfoFilled', hidden: true }
+          }
+        ]
       }
     ]
   },
