@@ -40,6 +40,34 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'user/role',
+        name: 'UserRole',
+        component: () => import('../views/user/UserRole.vue'),
+        meta: {
+          title: '用户角色',
+          icon: 'UserFilled',
+          hidden: true
+        }
+      },
+      {
+        path: 'role',
+        name: 'Role',
+        component: () => import('../views/role/RoleList.vue'),
+        meta: {
+          title: '角色管理',
+          icon: 'Key'
+        }
+      },
+      {
+        path: 'permission',
+        name: 'Permission',
+        component: () => import('../views/permission/PermissionList.vue'),
+        meta: {
+          title: '权限管理',
+          icon: 'Lock'
+        }
+      },
+      {
         path: 'organization',
         name: 'Organization',
         component: () => import('../views/organization/OrgList.vue'),
@@ -60,10 +88,40 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'employee',
         name: 'Employee',
-        component: () => import('../views/employee/EmpList.vue'),
+        component: () => import('../views/employee/EmployeeList.vue'),
         meta: {
           title: '人员管理',
           icon: 'UserFilled'
+        }
+      },
+      {
+        path: 'employee/detail/:id',
+        name: 'EmployeeDetail',
+        component: () => import('../views/employee/EmployeeDetail.vue'),
+        meta: {
+          title: '员工详情',
+          icon: 'UserFilled',
+          hidden: true
+        }
+      },
+      {
+        path: 'employee/edit/:id',
+        name: 'EmployeeEdit',
+        component: () => import('../views/employee/EmployeeEdit.vue'),
+        meta: {
+          title: '编辑员工',
+          icon: 'UserFilled',
+          hidden: true
+        }
+      },
+      {
+        path: 'employee/add',
+        name: 'EmployeeAdd',
+        component: () => import('../views/employee/EmployeeEdit.vue'),
+        meta: {
+          title: '新增员工',
+          icon: 'UserFilled',
+          hidden: true
         }
       },
       {
