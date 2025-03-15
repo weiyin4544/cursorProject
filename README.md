@@ -1,0 +1,2 @@
+# cursorProject
+专门用来记录cursor工具生成的项目的仓储
