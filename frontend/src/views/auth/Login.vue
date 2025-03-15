@@ -47,9 +47,12 @@ import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import type { FormInstance } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/user'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
+const userStore = useUserStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
 
@@ -75,12 +78,22 @@ const handleLogin = async () => {
     await formRef.value.validate()
     
     // TODO: 实现登录接口调用
-    localStorage.setItem('token', 'demo-token')
+    // 模拟登录成功
+    userStore.setToken('demo-token')
+    userStore.setUserInfo({
+      id: '1',
+      username: loginForm.username,
+      nickname: '管理员',
+      avatar: '',
+      roles: ['admin']
+    })
     
+    ElMessage.success('登录成功')
     const redirect = route.query.redirect as string
     router.push(redirect || '/dashboard')
   } catch (error) {
     console.error('登录失败:', error)
+    ElMessage.error('登录失败，请检查用户名和密码')
   } finally {
     loading.value = false
   }

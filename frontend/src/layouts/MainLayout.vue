@@ -1,10 +1,11 @@
 <template>
   <el-container class="layout-container">
-    <el-aside width="200px">
+    <el-aside :width="appStore.sidebarCollapsed ? '64px' : '200px'">
       <el-menu
         :router="true"
         :default-active="route.path"
         class="el-menu-vertical"
+        :collapse="appStore.sidebarCollapsed"
       >
         <el-menu-item
           v-for="route in routes"
@@ -12,20 +13,33 @@
           :index="route.path"
         >
           <el-icon><component :is="route.meta.icon" /></el-icon>
-          <span>{{ route.meta.title }}</span>
+          <template #title>{{ route.meta.title }}</template>
         </el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>
       <el-header>
         <div class="header-left">
+          <el-icon
+            class="collapse-btn"
+            @click="appStore.toggleSidebar"
+          >
+            <component :is="appStore.sidebarCollapsed ? 'Expand' : 'Fold'" />
+          </el-icon>
           <h2>MGT系统</h2>
         </div>
         <div class="header-right">
+          <el-switch
+            v-model="theme"
+            inline-prompt
+            :active-icon="Sunny"
+            :inactive-icon="Moon"
+            @change="handleThemeChange"
+          />
           <el-dropdown>
             <span class="user-info">
-              <el-avatar :size="32" icon="UserFilled" />
-              <span>管理员</span>
+              <el-avatar :size="32" :icon="UserFilled" />
+              <span>{{ userStore.userInfo.nickname }}</span>
             </span>
             <template #dropdown>
               <el-dropdown-menu>
@@ -46,10 +60,16 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { Sunny, Moon, UserFilled, Expand, Fold } from '@element-plus/icons-vue'
+import { useAppStore } from '@/stores/app'
+import { useUserStore } from '@/stores/user'
+import { ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
+const appStore = useAppStore()
+const userStore = useUserStore()
 
 const routes = computed(() => {
   return router.options.routes
@@ -57,14 +77,26 @@ const routes = computed(() => {
     ?.children?.filter(route => route.meta?.title) || []
 })
 
+const theme = ref(appStore.theme === 'dark')
+
+const handleThemeChange = (value: boolean) => {
+  appStore.setTheme(value ? 'dark' : 'light')
+}
+
 const handleProfile = () => {
   // TODO: 实现个人信息页面
   console.log('查看个人信息')
 }
 
 const handleLogout = () => {
-  localStorage.removeItem('token')
-  router.push('/login')
+  ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    userStore.clearUserInfo()
+    router.push('/login')
+  }).catch(() => {})
 }
 </script>
 
@@ -74,6 +106,7 @@ const handleLogout = () => {
 
   .el-aside {
     background-color: #304156;
+    transition: width 0.3s;
     
     .el-menu {
       height: 100%;
@@ -91,6 +124,19 @@ const handleLogout = () => {
     padding: 0 20px;
 
     .header-left {
+      display: flex;
+      align-items: center;
+
+      .collapse-btn {
+        font-size: 20px;
+        cursor: pointer;
+        margin-right: 16px;
+        
+        &:hover {
+          color: var(--el-color-primary);
+        }
+      }
+
       h2 {
         margin: 0;
         color: #303133;
@@ -98,6 +144,10 @@ const handleLogout = () => {
     }
 
     .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
       .user-info {
         display: flex;
         align-items: center;
