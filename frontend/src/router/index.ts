@@ -150,6 +150,15 @@ const routes: RouteRecordRaw[] = [
           title: '调度员管理',
           icon: 'Service'
         }
+      },
+      {
+        path: 'subsystem',
+        name: 'Subsystem',
+        component: () => import('../views/subsystem/SubsystemList.vue'),
+        meta: {
+          title: '子系统管理',
+          icon: 'Connection'
+        }
       }
     ]
   },
@@ -185,4 +194,4 @@ router.beforeEach((to, from, next) => {
   next()
 })
 
-export default router 
+export default router
