@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    v-model="visible"
+    v-model="dialogVisible"
     :title="title"
     :width="width"
     :fullscreen="fullscreen"
@@ -8,8 +8,8 @@
     :modal="modal"
     :append-to-body="appendToBody"
     :lock-scroll="lockScroll"
-    :close-on-click-modal="closeOnClickModal"
-    :close-on-press-escape="closeOnPressEscape"
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
     :show-close="showClose"
     :center="center"
     :destroy-on-close="destroyOnClose"
@@ -20,7 +20,7 @@
   >
     <slot></slot>
     <template #footer>
-      <slot name="footer">
+      <span class="dialog-footer">
         <el-button @click="handleCancel">取消</el-button>
         <el-button
           type="primary"
@@ -29,56 +29,68 @@
         >
           确定
         </el-button>
-      </slot>
+      </span>
     </template>
   </el-dialog>
 </template>
 
 <script setup lang="ts">
-interface Props {
-  modelValue: boolean
-  title?: string
-  width?: string | number
-  fullscreen?: boolean
-  top?: string
-  modal?: boolean
-  appendToBody?: boolean
-  lockScroll?: boolean
-  closeOnClickModal?: boolean
-  closeOnPressEscape?: boolean
-  showClose?: boolean
-  center?: boolean
-  destroyOnClose?: boolean
-  confirmLoading?: boolean
-}
+import { computed } from 'vue'
 
-const props = withDefaults(defineProps<Props>(), {
-  title: '',
-  width: '50%',
-  fullscreen: false,
-  top: '15vh',
-  modal: true,
-  appendToBody: false,
-  lockScroll: true,
-  closeOnClickModal: true,
-  closeOnPressEscape: true,
-  showClose: true,
-  center: false,
-  destroyOnClose: false,
-  confirmLoading: false
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false
+  },
+  title: {
+    type: String,
+    default: ''
+  },
+  width: {
+    type: String,
+    default: '50%'
+  },
+  fullscreen: {
+    type: Boolean,
+    default: false
+  },
+  top: {
+    type: String,
+    default: '15vh'
+  },
+  modal: {
+    type: Boolean,
+    default: true
+  },
+  appendToBody: {
+    type: Boolean,
+    default: false
+  },
+  lockScroll: {
+    type: Boolean,
+    default: true
+  },
+  showClose: {
+    type: Boolean,
+    default: true
+  },
+  center: {
+    type: Boolean,
+    default: false
+  },
+  destroyOnClose: {
+    type: Boolean,
+    default: false
+  },
+  confirmLoading: {
+    type: Boolean,
+    default: false
+  }
 })
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void
-  (e: 'open'): void
-  (e: 'opened'): void
-  (e: 'close'): void
-  (e: 'closed'): void
-  (e: 'cancel'): void
-  (e: 'confirm'): void
-}>()
+const emit = defineEmits(['update:modelValue', 'open', 'opened', 'close', 'closed', 'cancel', 'confirm'])
 
-const visible = computed({
+const dialogVisible = computed({
   get: () => props.modelValue,
   set: (val) => emit('update:modelValue', val)
 })
@@ -100,8 +112,8 @@ const handleClosed = () => {
 }
 
 const handleCancel = () => {
-  visible.value = false
   emit('cancel')
+  dialogVisible.value = false
 }
 
 const handleConfirm = () => {
@@ -126,5 +138,11 @@ const handleConfirm = () => {
   .el-dialog__footer {
     padding: 10px 20px 20px;
   }
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 </style> 

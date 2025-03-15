@@ -1,31 +1,25 @@
 import axios from 'axios'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ElMessage } from 'element-plus'
-import router from '@/router'
 import { useUserStore } from '@/stores/user'
 
-// 创建axios实例
+// 创建 axios 实例
 const service: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
-  timeout: 15000,
-  headers: {
-    'Content-Type': 'application/json;charset=utf-8'
-  }
+  baseURL: import.meta.env.VITE_API_URL,
+  timeout: 10000
 })
 
 // 请求拦截器
 service.interceptors.request.use(
-  (config: AxiosRequestConfig) => {
+  (config) => {
     const userStore = useUserStore()
-    if (userStore.token) {
-      config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${userStore.token}`
-      }
+    const token = userStore.token
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
     }
     return config
   },
-  (error: any) => {
+  (error) => {
     console.error('请求错误:', error)
     return Promise.reject(error)
   }
@@ -36,39 +30,52 @@ service.interceptors.response.use(
   (response: AxiosResponse) => {
     const { code, message, data } = response.data
 
-    // 如果没有code，说明是直接返回的数据
+    // 如果没有 code，说明是直接返回的数据
     if (code === undefined) {
       return response.data
     }
 
-    // 根据code处理响应
-    switch (code) {
-      case 200:
-        return data
-      case 401:
-        ElMessage.error('登录已过期，请重新登录')
-        const userStore = useUserStore()
-        userStore.clearUserInfo()
-        router.push(`/login?redirect=${router.currentRoute.value.fullPath}`)
-        return Promise.reject(new Error(message || '登录已过期'))
-      case 403:
-        ElMessage.error('没有权限访问该资源')
-        return Promise.reject(new Error(message || '没有权限'))
-      default:
-        ElMessage.error(message || '请求失败')
-        return Promise.reject(new Error(message || '请求失败'))
+    // 成功
+    if (code === 0) {
+      return data
     }
+
+    // 失败
+    ElMessage.error(message || '请求失败')
+    return Promise.reject(new Error(message || '请求失败'))
   },
-  (error: any) => {
-    console.error('响应错误:', error)
-    const message = error.response?.data?.message || error.message
+  (error) => {
+    let message = ''
+    if (error.response) {
+      switch (error.response.status) {
+        case 401:
+          message = '未授权，请重新登录'
+          // 清除用户信息并跳转到登录页
+          const userStore = useUserStore()
+          userStore.logout()
+          break
+        case 403:
+          message = '拒绝访问'
+          break
+        case 404:
+          message = '请求错误,未找到该资源'
+          break
+        case 500:
+          message = '服务器端出错'
+          break
+        default:
+          message = error.response.data.message || '未知错误'
+      }
+    } else {
+      message = error.message || '网络错误'
+    }
     ElMessage.error(message)
     return Promise.reject(error)
   }
 )
 
 // 封装请求方法
-export const request = {
+const request = {
   get<T = any>(url: string, params?: any, config?: AxiosRequestConfig): Promise<T> {
     return service.get(url, { params, ...config })
   },
@@ -81,8 +88,8 @@ export const request = {
     return service.put(url, data, config)
   },
 
-  delete<T = any>(url: string, params?: any, config?: AxiosRequestConfig): Promise<T> {
-    return service.delete(url, { params, ...config })
+  delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return service.delete(url, config)
   }
 }
 
