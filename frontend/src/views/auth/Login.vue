@@ -49,6 +49,8 @@ import type { FormInstance } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
+import { login } from '@/api/auth'
+import type { LoginParams } from '@/api/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -56,7 +58,7 @@ const userStore = useUserStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
 
-const loginForm = reactive({
+const loginForm = reactive<LoginParams>({
   username: '',
   password: ''
 })
@@ -77,16 +79,9 @@ const handleLogin = async () => {
     loading.value = true
     await formRef.value.validate()
     
-    // TODO: 实现登录接口调用
-    // 模拟登录成功
-    userStore.setToken('demo-token')
-    userStore.setUserInfo({
-      id: '1',
-      username: loginForm.username,
-      nickname: '管理员',
-      avatar: '',
-      roles: ['admin']
-    })
+    const { token, userInfo } = await login(loginForm)
+    userStore.setToken(token)
+    userStore.setUserInfo(userInfo)
     
     ElMessage.success('登录成功')
     const redirect = route.query.redirect as string

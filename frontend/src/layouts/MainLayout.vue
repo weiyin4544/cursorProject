@@ -64,7 +64,8 @@ import { computed, ref } from 'vue'
 import { Sunny, Moon, UserFilled, Expand, Fold } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox, ElMessage } from 'element-plus'
+import { logout } from '@/api/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -93,9 +94,15 @@ const handleLogout = () => {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
-  }).then(() => {
-    userStore.clearUserInfo()
-    router.push('/login')
+  }).then(async () => {
+    try {
+      await logout()
+      userStore.clearUserInfo()
+      router.push('/login')
+      ElMessage.success('退出登录成功')
+    } catch (error) {
+      console.error('退出登录失败:', error)
+    }
   }).catch(() => {})
 }
 </script>
